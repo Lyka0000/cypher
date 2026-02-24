@@ -43,173 +43,151 @@ if ($message !== "") {
 <html>
 <head>
     <title>Message Encryptor & Decryptor</title>
-
-    <!-- Computer Style Font -->
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-    <style>
-        body {
-            background-color: #0d1117;
-            color: #00ff88;
-            font-family: 'Share Tech Mono', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<style>
 
-        .terminal {
-            background-color: #161b22;
-            padding: 30px;
-            width: 520px;
-            border-radius: 10px;
-            box-shadow: 0 0 25px #00ff88;
-        }
+body {
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Share Tech Mono', monospace;
+    background: linear-gradient(-45deg, #0d1117, #001f1f, #002b36, #0d1117);
+    background-size:400% 400%;
+    animation: gradientBG 10s ease infinite;
+    color:#00ffcc;
+}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+@keyframes gradientBG {
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+}
 
-        input, select {
-            width: 100%;
-            padding: 8px;
-            margin: 10px 0;
-            background: #0d1117;
-            color: #00ff88;
-            border: 1px solid #00ff88;
-            border-radius: 5px;
-            font-family: inherit;
-        }
+.container {
+    width:550px;
+    padding:35px;
+    border-radius:15px;
+    backdrop-filter: blur(15px);
+    background: rgba(0,0,0,0.6);
+    border:1px solid rgba(0,255,200,0.3);
+    box-shadow:0 0 40px rgba(0,255,200,0.4);
+    animation: fadeIn 1s ease-in-out;
+}
 
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            background: #00ff88;
-            color: black;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+@keyframes fadeIn {
+    from {opacity:0; transform:translateY(20px);}
+    to {opacity:1; transform:translateY(0);}
+}
 
-        button:hover {
-            background: #00cc6a;
-        }
+h2 {
+    text-align:center;
+    margin-bottom:25px;
+    letter-spacing:2px;
+}
 
-        .result {
-            margin-top: 15px;
-            padding: 10px;
-            background: #0d1117;
-            border: 1px solid #00ff88;
-            border-radius: 5px;
-            word-wrap: break-word;
-        }
+input, select {
+    width:100%;
+    padding:10px;
+    margin:12px 0;
+    background:#0d1117;
+    color:#00ffcc;
+    border:1px solid #00ffcc;
+    border-radius:6px;
+    font-family:inherit;
+    transition:0.3s;
+}
 
-        .guide {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #8b949e;
-            display: none;
-        }
+input:focus, select:focus {
+    outline:none;
+    box-shadow:0 0 10px #00ffcc;
+}
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-        }
+button {
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    background:#00ffcc;
+    color:#000;
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
 
-        .modal-content {
-            background: #161b22;
-            padding: 25px;
-            border: 1px solid #00ff88;
-            width: 400px;
-            color: #00ff88;
-            border-radius: 8px;
-        }
-    </style>
+button:hover {
+    background:#00ccaa;
+    transform:scale(1.05);
+}
+
+.result {
+    margin-top:20px;
+    padding:15px;
+    border-radius:8px;
+    background:#0d1117;
+    border:1px solid #00ffcc;
+    min-height:40px;
+    overflow:hidden;
+    white-space:pre-wrap;
+}
+
+.cursor {
+    display:inline-block;
+    width:8px;
+    background:#00ffcc;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%{opacity:1;}
+    50%{opacity:0;}
+    100%{opacity:1;}
+}
+
+</style>
 </head>
+
 <body>
 
-<div class="terminal">
-    <h2>🔐 Message Encryptor & Decryptor</h2>
+<div class="container">
+    <h2>🔐 ENCRYPTION SYSTEM</h2>
 
     <form method="POST">
         <label>Enter Message:</label>
-        <input type="text" name="message" required>
+        <input type="text" name="message" required value="<?php echo htmlspecialchars($message); ?>">
 
         <label>Select Mode:</label>
         <select name="mode">
-            <option value="encrypt">Encrypt</option>
-            <option value="decrypt">Decrypt</option>
+            <option value="encrypt" <?php if($mode=="encrypt") echo "selected"; ?>>Encrypt</option>
+            <option value="decrypt" <?php if($mode=="decrypt") echo "selected"; ?>>Decrypt</option>
         </select>
 
-        <button type="submit">Execute</button>
+        <button type="submit">EXECUTE</button>
     </form>
 
     <?php if ($output !== ""): ?>
         <div class="result">
-            OUTPUT: <?php echo htmlspecialchars($output); ?>
+            <span id="typedOutput"></span><span class="cursor"></span>
         </div>
+
+        <script>
+        const text = "<?php echo htmlspecialchars($output); ?>";
+        let i = 0;
+        function typeEffect() {
+            if (i < text.length) {
+                document.getElementById("typedOutput").innerHTML += text.charAt(i);
+                i++;
+                setTimeout(typeEffect, 40);
+            }
+        }
+        typeEffect();
+        </script>
     <?php endif; ?>
 
-    <button onclick="toggleGuide()">📘 Show / Hide User Guide</button>
-    <button onclick="openModal()">❓ Help</button>
-
-    <div class="guide" id="guide">
-        <h3>HOW TO USE THE SYSTEM</h3>
-
-        <b>🟢 ENCRYPT:</b><br>
-        1. Type your original message.<br>
-        2. Select Encrypt mode.<br>
-        3. Click Execute.<br>
-        4. Copy the encrypted OUTPUT shown below.<br><br>
-
-        <b>🔵 DECRYPT:</b><br>
-        1. Copy the encrypted message.<br>
-        2. Paste it into the message box.<br>
-        3. Select Decrypt mode.<br>
-        4. Click Execute.<br>
-        5. The original message will appear.<br><br>
-
-        ⚠ Decryption only works if the same substitution key was used.
-    </div>
 </div>
-
-<!-- Modal -->
-<div class="modal" id="modal">
-    <div class="modal-content">
-        <h3>System Instructions</h3>
-        1. Enter message.<br>
-        2. Choose Encrypt or Decrypt.<br>
-        3. Click Execute.<br>
-        4. To decrypt, paste encrypted text and switch to Decrypt mode.<br><br>
-        <button onclick="closeModal()">Close</button>
-    </div>
-</div>
-
-<script>
-function toggleGuide() {
-    var guide = document.getElementById("guide");
-    guide.style.display = guide.style.display === "none" ? "block" : "none";
-}
-
-function openModal() {
-    document.getElementById("modal").style.display = "flex";
-}
-
-function closeModal() {
-    document.getElementById("modal").style.display = "none";
-}
-</script>
 
 </body>
 </html>
